@@ -21,7 +21,8 @@ module Bskyrb
 
       # Regex patterns
       mention_pattern = /(^|\s|\()(@)([a-zA-Z0-9.-]+)(\b)/
-      link_pattern = URI.regexp
+      # link_pattern = URI.regexp
+      link_pattern = /(https?):\/\/(\S+)/
 
       # Find mentions
       text.enum_for(:scan, mention_pattern).each do |m|
@@ -50,7 +51,7 @@ module Bskyrb
         index_start = Regexp.last_match.offset(0).first
         index_end = Regexp.last_match.offset(0).last
         m.compact!
-        path = "#{m[1]}#{m[2..-1].join("")}".strip
+        path = "#{m[1]}#{m[2..].join("")}".strip
         facets.push(
           "$type" => "app.bsky.richtext.facet",
           "index" => {
@@ -59,7 +60,7 @@ module Bskyrb
           },
           "features" => [
             {
-              "uri" => URI.parse("#{m[0]}://#{path}/").normalize.to_s, # this is the matched link
+              "uri" => URI.parse("#{m[0]}://#{path}").normalize.to_s, # this is the matched link
               "$type" => "app.bsky.richtext.facet#link",
             },
           ],
